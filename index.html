@@ -56,13 +56,13 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .track-info {
-  text-align: center;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: baseline;
 }
 .track-title {
@@ -74,10 +74,9 @@ h1 {
   opacity: .5;
 }
 .track-sep {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 10px;
   color: #ccff00;
   opacity: .2;
+  font-size: 10px;
 }
 .track-artist {
   font-family: 'Archivo Black', sans-serif;
@@ -88,28 +87,18 @@ h1 {
   opacity: .2;
 }
 
-/* Waveform bars */
-.waveform {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 32px;
-}
-.bar {
-  width: 2px;
-  background: #ccff00;
-  border-radius: 1px;
+/* Barre de progression */
+.progress-wrap {
+  width: 200px;
   height: 3px;
-  opacity: .4;
-  transition: height .1s;
+  background: rgba(204,255,0,0.1);
+  position: relative;
 }
-.waveform.playing .bar {
-  animation: wave var(--d, 1s) ease-in-out infinite var(--dl, 0s);
-  opacity: .6;
-}
-@keyframes wave {
-  0%, 100% { height: 3px; }
-  50% { height: var(--h, 16px); }
+.progress-fill {
+  height: 100%;
+  background: #ccff00;
+  width: 0%;
+  transition: width .8s linear;
 }
 
 /* Mute */
@@ -124,7 +113,6 @@ h1 {
 #mute:hover { opacity: 1; }
 #mute svg { width: 18px; height: 18px; fill: #ccff00; display: block; }
 
-/* SC caché */
 #sc {
   position: fixed;
   width: 1px; height: 1px;
@@ -149,28 +137,8 @@ h1 {
     <span class="track-sep">—</span>
     <span class="track-artist">TN_</span>
   </div>
-
-  <div class="waveform" id="waveform">
-    <div class="bar" style="--d:1.1s;--dl:0s;--h:28px"></div>
-    <div class="bar" style="--d:0.8s;--dl:.05s;--h:14px"></div>
-    <div class="bar" style="--d:1.3s;--dl:.1s;--h:32px"></div>
-    <div class="bar" style="--d:0.9s;--dl:.08s;--h:20px"></div>
-    <div class="bar" style="--d:1.0s;--dl:.15s;--h:26px"></div>
-    <div class="bar" style="--d:1.2s;--dl:.03s;--h:18px"></div>
-    <div class="bar" style="--d:0.7s;--dl:.12s;--h:30px"></div>
-    <div class="bar" style="--d:1.4s;--dl:.06s;--h:22px"></div>
-    <div class="bar" style="--d:0.85s;--dl:.18s;--h:16px"></div>
-    <div class="bar" style="--d:1.1s;--dl:.09s;--h:28px"></div>
-    <div class="bar" style="--d:0.95s;--dl:.14s;--h:24px"></div>
-    <div class="bar" style="--d:1.25s;--dl:.04s;--h:32px"></div>
-    <div class="bar" style="--d:0.75s;--dl:.11s;--h:18px"></div>
-    <div class="bar" style="--d:1.0s;--dl:.07s;--h:26px"></div>
-    <div class="bar" style="--d:1.15s;--dl:.16s;--h:20px"></div>
-    <div class="bar" style="--d:0.9s;--dl:.02s;--h:30px"></div>
-    <div class="bar" style="--d:1.3s;--dl:.13s;--h:14px"></div>
-    <div class="bar" style="--d:0.8s;--dl:.08s;--h:28px"></div>
-    <div class="bar" style="--d:1.05s;--dl:.17s;--h:22px"></div>
-    <div class="bar" style="--d:1.2s;--dl:.05s;--h:32px"></div>
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill"></div>
   </div>
 </div>
 
@@ -182,25 +150,23 @@ h1 {
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script>
   const widget = SC.Widget(document.getElementById('sc'));
-  const waveform = document.getElementById('waveform');
+  const fill = document.getElementById('progressFill');
   let muted = false;
+  let duration = 0;
 
-  widget.bind(SC.Widget.Events.PLAY, () => {
-    waveform.classList.add('playing');
-  });
-  widget.bind(SC.Widget.Events.PAUSE, () => {
-    waveform.classList.remove('playing');
-  });
   widget.bind(SC.Widget.Events.READY, () => {
-    waveform.classList.add('playing');
+    widget.getDuration(d => { duration = d; });
+  });
+
+  widget.bind(SC.Widget.Events.PLAY_PROGRESS, data => {
+    if (duration) fill.style.width = (data.currentPosition / duration * 100) + '%';
   });
 
   document.getElementById('mute').addEventListener('click', () => {
     muted = !muted;
     widget.setVolume(muted ? 0 : 100);
-    document.getElementById('iconOn').style.display  = muted ? 'none'  : 'block';
+    document.getElementById('iconOn').style.display = muted ? 'none' : 'block';
     document.getElementById('iconOff').style.display = muted ? 'block' : 'none';
-    waveform.classList.toggle('playing', !muted);
   });
 </script>
 </body>
