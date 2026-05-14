@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVE INDEX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #010101;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+h1 {
+  font-family: 'Archivo Black', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 12vw, 11rem);
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+  color: #ccff00;
+  user-select: none;
+  line-height: 1;
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 20px rgba(204,255,0,0.4); }
+  50%       { text-shadow: 0 0 40px rgba(204,255,0,0.9), 0 0 80px rgba(204,255,0,0.3); }
+}
+
+.under {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(0.6rem, 1.2vw, 0.85rem);
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: #ccff00;
+  opacity: .3;
+  margin-top: 16px;
+}
+
+/* Player */
+.player-wrap {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 340px;
+}
+
+.track-info {
+  text-align: center;
+}
+.track-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #ccff00;
+  opacity: .5;
+}
+.track-artist {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 8px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: #ccff00;
+  opacity: .2;
+  margin-top: 3px;
+}
+
+/* Progress bar */
+.progress-wrap {
+  width: 100%;
+  height: 2px;
+  background: rgba(204,255,0,0.1);
+  cursor: pointer;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: #ccff00;
+  width: 0%;
+  transition: width .5s linear;
+  pointer-events: none;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ctrl {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: .3;
+  transition: opacity .2s;
+  line-height: 0;
+}
+.ctrl:hover { opacity: 1; }
+.ctrl svg { width: 16px; height: 16px; fill: #ccff00; display: block; }
+.ctrl.play svg { width: 20px; height: 20px; }
+
+.time {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 8px;
+  letter-spacing: .15em;
+  color: #ccff00;
+  opacity: .25;
+  min-width: 65px;
+  text-align: center;
+}
+
+/* SC iframe caché */
+#sc {
+  position: fixed;
+  width: 1px; height: 1px;
+  opacity: 0; pointer-events: none;
+  bottom: 0; left: 0;
+}
+</style>
+</head>
+<body>
+
+<h1>NOVE INDEX</h1>
+<div class="under">Under Development</div>
+
+<iframe id="sc"
+  src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2055623164&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  allow="autoplay">
+</iframe>
+
+<div class="player-wrap">
+  <div class="track-info">
+    <div class="track-title">In Vitro</div>
+    <div class="track-artist">TN_ — 2025</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div class="controls">
+    <span class="time" id="timeEl">0:00 / 0:00</span>
+
+    <button class="ctrl" id="seekBack" title="−15s">
+      <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1 11h-.5v-3H10v-.5h1.5V16zm2.5 0h-1.5c-.28 0-.5-.22-.5-.5v-3c0-.28.22-.5.5-.5H14c.28 0 .5.22.5.5v3c0 .28-.22.5-.5.5zm0-3.5h-1v2.5h1v-2.5z"/></svg>
+    </button>
+
+    <button class="ctrl play" id="playBtn" title="Play/Pause">
+      <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="iconPause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+
+    <button class="ctrl" id="seekFwd" title="+15s">
+      <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8zm-1 11h-.5v-3H10v-.5h1.5V16zm2.5 0h-1.5c-.28 0-.5-.22-.5-.5v-3c0-.28.22-.5.5-.5H14c.28 0 .5.22.5.5v3c0 .28-.22.5-.5.5zm0-3.5h-1v2.5h1v-2.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+  const widget = SC.Widget(document.getElementById('sc'));
+  const progressFill = document.getElementById('progressFill');
+  const progressWrap = document.getElementById('progressWrap');
+  const timeEl = document.getElementById('timeEl');
+  const playBtn = document.getElementById('playBtn');
+  const iconPlay = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  let playing = true;
+  let duration = 0;
+
+  function fmt(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    return m + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  widget.bind(SC.Widget.Events.READY, () => {
+    widget.getDuration(d => { duration = d; });
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'block';
+  });
+
+  widget.bind(SC.Widget.Events.PLAY_PROGRESS, data => {
+    if (duration) {
+      progressFill.style.width = (data.currentPosition / duration * 100) + '%';
+      timeEl.textContent = fmt(data.currentPosition) + ' / ' + fmt(duration);
+    }
+  });
+
+  widget.bind(SC.Widget.Events.PLAY, () => {
+    playing = true;
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'block';
+  });
+
+  widget.bind(SC.Widget.Events.PAUSE, () => {
+    playing = false;
+    iconPlay.style.display = 'block';
+    iconPause.style.display = 'none';
+  });
+
+  playBtn.addEventListener('click', () => {
+    playing ? widget.pause() : widget.play();
+  });
+
+  document.getElementById('seekBack').addEventListener('click', () => {
+    widget.getPosition(p => widget.seekTo(Math.max(0, p - 15000)));
+  });
+
+  document.getElementById('seekFwd').addEventListener('click', () => {
+    widget.getPosition(p => widget.seekTo(p + 15000));
+  });
+
+  progressWrap.addEventListener('click', e => {
+    const pct = e.offsetX / progressWrap.offsetWidth;
+    widget.seekTo(pct * duration);
+  });
+</script>
+</body>
+</html>
